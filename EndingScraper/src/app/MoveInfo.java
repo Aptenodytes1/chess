@@ -13,9 +13,9 @@ public class MoveInfo {
 	 */
 	private char piece;
 	/**
-	 * 駒を動かした先のマス目コード
+	 * 駒を動かした先のマス目
 	 */
-	private int squareCode;
+	private String square;
 	/**
 	 * 駒を取る手である場合はtrue, それ以外はfalse
 	 */
@@ -47,11 +47,11 @@ public class MoveInfo {
 			rookRank = isWhite ? "1" : "8";
 			rookFile = isKingsideCastle(move) ? "f" : "d";
 
-			this.squareCode = encodeSquare(rookFile + rookRank);
+			this.square = rookFile + rookRank;
 			this.promotionPiece = '-';
 		} else {
-			this.piece = getPiece(move);
-			this.squareCode = encodeSquare(getDestination(move));
+			this.piece = getMovedPiece(move);
+			this.square = getDestination(move);
 			this.isCapture = isMoveCapture(move);
 			this.isPromotion = isMovePromotion(move);
 
@@ -76,7 +76,7 @@ public class MoveInfo {
 	}
 
 	public boolean isEqualSquare(MoveInfo m) {
-		return this.squareCode == m.squareCode;
+		return (this.square).equals(m.getSquare());
 	}
 
 	public boolean isWhiteMove() {
@@ -105,12 +105,21 @@ public class MoveInfo {
 	 * @param move 手
 	 * @return 駒名
 	 */
-	private char getPiece(String move) {
+	private char getMovedPiece(String move) {
 		char c = move.charAt(0);
 		if ('a' <= c && c <= 'h')
 			return 'P';
 		else
 			return c;
+	}
+
+	/**
+	 * インスタンスが保持するマスを取得する。
+	 * 
+	 * @return 座標
+	 */
+	public String getSquare() {
+		return square;
 	}
 
 	public char getPromotionPiece(String move) {
@@ -128,38 +137,6 @@ public class MoveInfo {
 	private String extract(String str, Pattern p, int group) {
 		Matcher m = p.matcher(str);
 		return m.matches() ? m.group(group) : null;
-	}
-
-	/**
-	 * 記述式の座標をマス目コードに変換する。
-	 * 
-	 * @param square 座標
-	 * @return マス目コード
-	 */
-	public int encodeSquare(String square) {
-		char[] c = square.toCharArray();
-		return (c[0] - 'a' + 1) * 10 + (c[1] - '0');
-	}
-
-	/**
-	 * インスタンスが保持するマス目コードを記述式のマス目座標に変換する。
-	 * 
-	 * @return 座標
-	 */
-	public String getSquare() {
-		return decodeSquare(squareCode);
-	}
-
-	/**
-	 * マス目コードを記述式のマス目座標に変換する。
-	 * 
-	 * @param squareCode マス目コード
-	 * @return 座標
-	 */
-	public String decodeSquare(int squareCode) {
-		int fileCode = squareCode / 10;
-		int rankCode = squareCode - fileCode * 10;
-		return (char) (fileCode + 'a' - 1) + String.valueOf(rankCode);
 	}
 
 	public String toString() {

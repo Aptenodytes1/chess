@@ -1,8 +1,15 @@
 package app;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Pieces {
+	public static final String P = "P";
+	public static final String N = "N";
+	public static final String B = "B";
+	public static final String R = "R";
+	public static final String Q = "Q";
+	public static final String K = "K";
+	public static final String DOUBLEB = "BB";
+	public static final String OB = "OB";
+	public static final String SB = "SB";
 	public static final char WP = 'P';
 	public static final char WN = 'N';
 	public static final char WB = 'B';
@@ -63,25 +70,6 @@ public class Pieces {
 		}
 	};
 
-	private static final Map<String, PiecesNum> pieceMap = new HashMap<String, PiecesNum>() {
-		{
-			put("WP", PiecesNum.WP);
-			put("WN", PiecesNum.WN);
-			put("WRB", PiecesNum.WRB);
-			put("WDB", PiecesNum.WDB);
-			put("WR", PiecesNum.WR);
-			put("WQ", PiecesNum.WQ);
-			put("WK", PiecesNum.WK);
-			put("BP", PiecesNum.BP);
-			put("BN", PiecesNum.BN);
-			put("BRB", PiecesNum.BRB);
-			put("BDB", PiecesNum.BDB);
-			put("BR", PiecesNum.BR);
-			put("BQ", PiecesNum.BQ);
-			put("BK", PiecesNum.BK);
-		}
-	};
-
 	public Pieces() {
 		setDefaultPiece();
 	}
@@ -92,14 +80,13 @@ public class Pieces {
 			{ BR, BN, BB, BQ, BK, BB, BN, BR } };
 
 	public void removePieceOnDefaultSquare(String square) {
-//		System.out.println("remove square:" + square);
 		if (isValidSquare(square)) {
 			int fileIndex = fileToIndex(square);
 			int rankIndex = rankToIndex(square);
-//			System.out.println("remove fileIndex:" + fileIndex + " remove rankIndex:" + rankIndex);
 			char removePiece = defaultPiecePlace[rankIndex][fileIndex];
-//			System.out.println("remove piece:" + removePiece);
-			removePiece(removePiece, square);
+			PiecesNum p = translatePiece(removePiece, square);
+			if (p != null)
+				p.remove();
 		}
 	}
 
@@ -138,20 +125,20 @@ public class Pieces {
 			return isPawnEnding(endingType);
 		}
 
-		if (endingType.contains("N")) {
-			WNnum = Util.countStr(endingType, "N");
-			BNnum = Util.countStr(endingType, "N");
-			endingType = endingType.replace("N", "");
+		if (endingType.contains(N)) {
+			WNnum = Util.countStr(endingType, N);
+			BNnum = Util.countStr(endingType, N);
+			endingType = endingType.replace(N, "");
 		}
-		if (endingType.contains("R")) {
-			WRnum = Util.countStr(endingType, "R");
-			BRnum = Util.countStr(endingType, "R");
-			endingType = endingType.replace("R", "");
+		if (endingType.contains(R)) {
+			WRnum = Util.countStr(endingType, R);
+			BRnum = Util.countStr(endingType, R);
+			endingType = endingType.replace(R, "");
 		}
-		if (endingType.contains("Q")) {
-			WQnum = Util.countStr(endingType, "Q");
-			BQnum = Util.countStr(endingType, "Q");
-			endingType = endingType.replace("Q", "");
+		if (endingType.contains(Q)) {
+			WQnum = Util.countStr(endingType, Q);
+			BQnum = Util.countStr(endingType, Q);
+			endingType = endingType.replace(Q, "");
 		}
 		boolean NRQexists = PiecesNum.WN.exists(WNnum) && PiecesNum.WR.exists(WRnum) && PiecesNum.WQ.exists(WQnum)
 				&& PiecesNum.BN.exists(BNnum) && PiecesNum.BR.exists(BRnum) && PiecesNum.BQ.exists(BQnum);
@@ -160,69 +147,57 @@ public class Pieces {
 			return false;
 		}
 
-		if (!endingType.contains("B")) {
+		if (!endingType.contains(B)) {
 			return NRQexists && PiecesNum.WRB.exists(WRBnum) && PiecesNum.WDB.exists(WDBnum)
 					&& PiecesNum.BRB.exists(BRBnum) && PiecesNum.BDB.exists(BDBnum);
 		}
 
-		if (endingType.contains("BB")) {
-			WRBnum = Util.countStr(endingType, "BB");
-			WDBnum = Util.countStr(endingType, "BB");
-			BRBnum = Util.countStr(endingType, "BB");
-			BDBnum = Util.countStr(endingType, "BB");
-			endingType = endingType.replace("BB", "");
+		if (endingType.contains(DOUBLEB)) {
+			WRBnum = Util.countStr(endingType, DOUBLEB);
+			WDBnum = Util.countStr(endingType, DOUBLEB);
+			BRBnum = Util.countStr(endingType, DOUBLEB);
+			BDBnum = Util.countStr(endingType, DOUBLEB);
+			return NRQexists && PiecesNum.WRB.exists(WRBnum) && PiecesNum.WDB.exists(WDBnum)
+					&& PiecesNum.BRB.exists(BRBnum) && PiecesNum.BDB.exists(BDBnum);
 		}
 
-		if (endingType.contains("OB")) {
-			if (PiecesNum.WRB.exists(1) && PiecesNum.WDB.exists(0) && PiecesNum.BRB.exists(0)
-					&& PiecesNum.BDB.exists(1))
-				return true;
-			else if (PiecesNum.WRB.exists(0) && PiecesNum.WDB.exists(1) && PiecesNum.BRB.exists(1)
-					&& PiecesNum.BDB.exists(0))
-				return true;
-			else
-				return false;
-		}
-		if (endingType.contains("SB")) {
-			if (PiecesNum.WRB.exists(1) && PiecesNum.WDB.exists(0) && PiecesNum.BRB.exists(1)
-					&& PiecesNum.BDB.exists(0))
-				return true;
-			else if (PiecesNum.WRB.exists(0) && PiecesNum.WDB.exists(1) && PiecesNum.BRB.exists(0)
-					&& PiecesNum.BDB.exists(1))
-				return true;
-			else
-				return false;
-		}
-		if (Util.countStr(endingType, "B") >= 2) {
+		if (endingType.contains(OB)) {
+			return existsOB();
+		} else if (endingType.contains(SB)) {
+			return existsSB();
+		} else if (Util.countStr(endingType, B) >= 2) {
 			return false;
-		} else if (Util.countStr(endingType, "B") == 1) {
-			if (PiecesNum.WRB.exists(1) && PiecesNum.WDB.exists(0) && PiecesNum.BRB.exists(0)
-					&& PiecesNum.BDB.exists(1))
-				return true;
-			else if (PiecesNum.WRB.exists(0) && PiecesNum.WDB.exists(1) && PiecesNum.BRB.exists(1)
-					&& PiecesNum.BDB.exists(0))
-				return true;
-			if (PiecesNum.WRB.exists(1) && PiecesNum.WDB.exists(0) && PiecesNum.BRB.exists(1)
-					&& PiecesNum.BDB.exists(0))
-				return true;
-			else if (PiecesNum.WRB.exists(0) && PiecesNum.WDB.exists(1) && PiecesNum.BRB.exists(0)
-					&& PiecesNum.BDB.exists(1))
-				return true;
-			else
-				return false;
+		} else if (Util.countStr(endingType, B) == 1) {
+			return existsOB() || existsSB();
 		}
 
-		return PiecesNum.WN.exists(WNnum) && PiecesNum.WRB.exists(WRBnum) && PiecesNum.WDB.exists(WDBnum)
-				&& PiecesNum.WR.exists(WRnum) && PiecesNum.WQ.exists(WQnum) && PiecesNum.BN.exists(BNnum)
-				&& PiecesNum.BRB.exists(BRBnum) && PiecesNum.BDB.exists(BDBnum) && PiecesNum.BR.exists(BRnum)
-				&& PiecesNum.BQ.exists(BQnum);
+		return false;
+	}
+
+	private boolean existsOB() {
+		if (PiecesNum.WRB.exists(1) && PiecesNum.WDB.exists(0) && PiecesNum.BRB.exists(0) && PiecesNum.BDB.exists(1))
+			return true;
+		else if (PiecesNum.WRB.exists(0) && PiecesNum.WDB.exists(1) && PiecesNum.BRB.exists(1)
+				&& PiecesNum.BDB.exists(0))
+			return true;
+		else
+			return false;
+	}
+
+	private boolean existsSB() {
+		if (PiecesNum.WRB.exists(1) && PiecesNum.WDB.exists(0) && PiecesNum.BRB.exists(1) && PiecesNum.BDB.exists(0))
+			return true;
+		else if (PiecesNum.WRB.exists(0) && PiecesNum.WDB.exists(1) && PiecesNum.BRB.exists(0)
+				&& PiecesNum.BDB.exists(1))
+			return true;
+		else
+			return false;
 	}
 
 	private boolean isPawnEndingType(String endingType) {
-		if (!endingType.contains("P"))
+		if (!endingType.contains(P))
 			return false;
-		if (endingType.contains("N") || endingType.contains("B") || endingType.contains("R")
-				|| endingType.contains("Q"))
+		if (endingType.contains(N) || endingType.contains(B) || endingType.contains(R) || endingType.contains(Q))
 			return false;
 		return true;
 	}
@@ -236,19 +211,19 @@ public class Pieces {
 	}
 
 	public boolean isValidEndingType(String endingType) {
-		if (endingType.contains("SB") && endingType.contains("OB"))
+		if (endingType.contains(SB) && endingType.contains(OB))
 			return false;
-		if (Util.countStr(endingType, "SB") >= 2 || Util.countStr(endingType, "OB") >= 2)
+		if (Util.countStr(endingType, SB) >= 2 || Util.countStr(endingType, OB) >= 2)
 			return false;
 
-		if (endingType.contains("SB")) {
-			endingType = endingType.replace("SB", "");
-			if (endingType.contains("B"))
+		if (endingType.contains(SB)) {
+			endingType = endingType.replace(SB, "");
+			if (endingType.contains(B))
 				return false;
 		}
-		if (endingType.contains("OB")) {
-			endingType = endingType.replace("OB", "");
-			if (endingType.contains("B"))
+		if (endingType.contains(OB)) {
+			endingType = endingType.replace(OB, "");
+			if (endingType.contains(B))
 				return false;
 		}
 		return true;
@@ -268,7 +243,6 @@ public class Pieces {
 
 	// 駒の初期配置と個数を設定する
 	public void setDefaultPiece(String[] pieces) {
-
 		if (pieces.length != 8 || pieces[0].length() != 8)
 			return;
 		for (PiecesNum p : PiecesNum.values()) {
@@ -276,30 +250,20 @@ public class Pieces {
 		}
 		for (int rankIndex = 0; rankIndex < pieces.length; rankIndex++) {
 			defaultPiecePlace[rankIndex] = pieces[rankIndex].toCharArray();
-//			System.out.println(defaultPiecePlace[rankIndex]);
 			for (int fileIndex = 0; fileIndex < pieces[rankIndex].length(); fileIndex++) {
 				String square = indexToSquare(fileIndex, rankIndex);
 				PiecesNum p = translatePiece(pieces[rankIndex].charAt(fileIndex), square);
 				if (p != null) {
 					p.generate();
-//					System.out.print(p.toChar());
-//					System.out.print(":" + p.num + " ");
 				}
 			}
-//			System.out.println();
 		}
 	}
 
 	public void printStatus() {
 		for (int i = defaultPiecePlace.length - 1; i >= 0; i--)
 			System.out.println(defaultPiecePlace[i]);
-		for (PiecesNum p : PiecesNum.values()) {
-			System.out.print(p.toString());
-			System.out.print(":" + p.num + " ");
-			if (p == PiecesNum.WK)
-				System.out.println();
-		}
-		System.out.println();
+		printNums();
 	}
 
 	public void printNums() {
@@ -348,18 +312,6 @@ public class Pieces {
 		return null;
 	}
 
-	private void removePiece(char piece, String square) {
-		PiecesNum p = translatePiece(piece, square);
-		if (p != null)
-			p.remove();
-	}
-
-	private void promotePiece(char piece, String square) {
-		PiecesNum p = translatePiece(piece, square);
-		if (p != null)
-			p.generate();
-	}
-
 	private boolean isValidSquare(String square) {
 		if (square.length() == 2) {
 			if ('a' <= square.charAt(0) && square.charAt(0) <= 'h' && '1' <= square.charAt(1)
@@ -388,10 +340,7 @@ public class Pieces {
 	private boolean isDarkSquare(String square) {
 		int fileIndex = fileToIndex(square);
 		int rankIndex = rankToIndex(square);
-		return isDarkSquare(fileIndex, rankIndex);
-	}
-
-	private boolean isDarkSquare(int fileIndex, int rankIndex) {
 		return (fileIndex + rankIndex) % 2 == 0;
 	}
+
 }

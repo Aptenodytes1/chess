@@ -1,4 +1,5 @@
 package app;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -98,14 +99,5 @@ public class GamePusher {
 			}
 		}
 		return game;
-	}
-
-	private String shortenString(String line, int length) {
-		if (line.length() >= length) {
-			return line.substring(0, length) + "...";
-		} else {
-			return line;
-		}
-
 	}
 }
