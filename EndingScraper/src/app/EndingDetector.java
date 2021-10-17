@@ -67,6 +67,11 @@ public class EndingDetector {
 		MoveInfo[] blackMoves = getWBMoves(moves)[1];
 		Pieces p = new Pieces();
 
+		if (!p.isValidEndingType(endingType)) {
+			System.out.println("Invalid endgameType.");
+			return false;
+		}
+
 		for (int ply = 0; ply < moves.length; ply++) {
 			boolean isWhiteTurn = (ply % 2 == 0) ? true : false;
 			int turn = ply / 2;

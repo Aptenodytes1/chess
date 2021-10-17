@@ -53,14 +53,6 @@ public class Pieces {
 			num = 0;
 		}
 
-		char toChar() {
-			return nameChar;
-		}
-
-		public String toString() {
-			return nameString;
-		}
-
 		boolean exists(int n) {
 			return num == n;
 		}
@@ -81,6 +73,43 @@ public class Pieces {
 	private char[][] defaultPiecePlace = { { WR, WN, WB, WQ, WK, WB, WN, WR }, { WP, WP, WP, WP, WP, WP, WP, WP },
 			EMPTYRANK, EMPTYRANK, EMPTYRANK, EMPTYRANK, { BP, BP, BP, BP, BP, BP, BP, BP },
 			{ BR, BN, BB, BQ, BK, BB, BN, BR } };
+
+	/**
+	 * スタンダードの駒の初期配置と個数を設定する
+	 */
+	public void setDefaultPiece() {
+		String rank1 = new String(new char[] { WR, WN, WB, WQ, WK, WB, WN, WR });
+		String rank2 = new String(new char[] { WP, WP, WP, WP, WP, WP, WP, WP });
+		String rankEmpty = new String(EMPTYRANK);
+		String rank7 = new String(new char[] { BP, BP, BP, BP, BP, BP, BP, BP });
+		String rank8 = new String(new char[] { BR, BN, BB, BQ, BK, BB, BN, BR });
+
+		String pieces[] = { rank1, rank2, rankEmpty, rankEmpty, rankEmpty, rankEmpty, rank7, rank8 };
+		setDefaultPiece(pieces);
+	}
+
+	/**
+	 * 駒の初期配置と個数を設定する
+	 * 
+	 * @param pieces 初期配置される駒
+	 */
+	public void setDefaultPiece(String[] pieces) {
+		if (pieces.length != 8 || pieces[0].length() != 8)
+			return;
+		for (PiecesNum p : PiecesNum.values()) {
+			p.clear();
+		}
+		for (int rankIndex = 0; rankIndex < pieces.length; rankIndex++) {
+			defaultPiecePlace[rankIndex] = pieces[rankIndex].toCharArray();
+			for (int fileIndex = 0; fileIndex < pieces[rankIndex].length(); fileIndex++) {
+				String square = indexToSquare(fileIndex, rankIndex);
+				PiecesNum p = translatePiece(pieces[rankIndex].charAt(fileIndex), square);
+				if (p != null) {
+					p.generate();
+				}
+			}
+		}
+	}
 
 	/**
 	 * 初期配置の駒を取り除く
@@ -126,78 +155,110 @@ public class Pieces {
 	}
 
 	/**
+	 * 適正なエンディングタイプであるか
+	 * 
+	 * @param endingType エンディングタイプ
+	 * @return 適正なエンディングタイプである場合はtrue
+	 */
+	public boolean isValidEndingType(String endingType) {
+		if (endingType.contains(SB) && endingType.contains(OB))
+			return false;
+		if (Util.countStr(endingType, SB) >= 2 || Util.countStr(endingType, OB) >= 2)
+			return false;
+	
+		if (endingType.contains(SB) || endingType.contains(OB)) {
+			if (Util.countStr(endingType, B) >= 2)
+				return false;
+		}
+		return true;
+	}
+
+	/**
 	 * 残っている駒がエンディングタイプと合っているか
 	 * 
 	 * @param endingType エンディングタイプ
 	 * @return 合っている場合はtrue
 	 */
 	public boolean isEnding(String endingType) {
-		int WNnum = 0;
-		int WRBnum = 0;
-		int WDBnum = 0;
-		int WRnum = 0;
-		int WQnum = 0;
-		int BNnum = 0;
-		int BRBnum = 0;
-		int BDBnum = 0;
-		int BRnum = 0;
-		int BQnum = 0;
-
-		if (!isValidEndingType(endingType)) {
-			System.out.println("Invalid endgameType.");
-			return false;
-		}
+		boolean checkResult = true;
+	
 		if (endingType.equals(P)) {
 			return isPawnEnding();
 		}
+	
+		checkResult &= existsN(endingType);
+		checkResult &= existsR(endingType);
+		checkResult &= existsQ(endingType);
+		checkResult &= existsB(endingType);
+	
+		return checkResult;
+	}
 
-		if (endingType.contains(N)) {
-			WNnum = Util.countStr(endingType, N);
-			BNnum = Util.countStr(endingType, N);
-			endingType = endingType.replace(N, "");
-		}
-		if (endingType.contains(R)) {
-			WRnum = Util.countStr(endingType, R);
-			BRnum = Util.countStr(endingType, R);
-			endingType = endingType.replace(R, "");
-		}
-		if (endingType.contains(Q)) {
-			WQnum = Util.countStr(endingType, Q);
-			BQnum = Util.countStr(endingType, Q);
-			endingType = endingType.replace(Q, "");
-		}
-		boolean NRQexists = PiecesNum.WN.exists(WNnum) && PiecesNum.WR.exists(WRnum) && PiecesNum.WQ.exists(WQnum)
-				&& PiecesNum.BN.exists(BNnum) && PiecesNum.BR.exists(BRnum) && PiecesNum.BQ.exists(BQnum);
-
-		if (!NRQexists) {
+	/**
+	 * ポーンエンディングであるか
+	 * 
+	 * @return ポーンエンディングである場合はtrue
+	 */
+	private boolean isPawnEnding() {
+		if (PiecesNum.WN.exists() || PiecesNum.WRB.exists() || PiecesNum.WDB.exists() || PiecesNum.WR.exists()
+				|| PiecesNum.WQ.exists() || PiecesNum.BN.exists() || PiecesNum.BRB.exists() || PiecesNum.BDB.exists()
+				|| PiecesNum.BR.exists() || PiecesNum.BQ.exists())
 			return false;
-		}
+		return PiecesNum.WP.exists() || PiecesNum.BP.exists();
+	}
 
-		if (!endingType.contains(B)) {
-			return NRQexists && PiecesNum.WRB.exists(WRBnum) && PiecesNum.WDB.exists(WDBnum)
-					&& PiecesNum.BRB.exists(BRBnum) && PiecesNum.BDB.exists(BDBnum);
-		}
+	/**
+	 * ナイトが適切な数残っているか
+	 * 
+	 * @param endingType エンディングタイプ
+	 * @return 適切な数残っている場合はtrue
+	 */
+	private boolean existsN(String endingType) {
+		int num = Util.countStr(endingType, N);
+		return PiecesNum.WN.exists(num) && PiecesNum.BN.exists(num);
+	}
 
-		if (endingType.contains(DOUBLEB)) {
-			WRBnum = Util.countStr(endingType, DOUBLEB);
-			WDBnum = Util.countStr(endingType, DOUBLEB);
-			BRBnum = Util.countStr(endingType, DOUBLEB);
-			BDBnum = Util.countStr(endingType, DOUBLEB);
-			return NRQexists && PiecesNum.WRB.exists(WRBnum) && PiecesNum.WDB.exists(WDBnum)
-					&& PiecesNum.BRB.exists(BRBnum) && PiecesNum.BDB.exists(BDBnum);
-		}
+	/**
+	 * ルークが適切な数残っているか
+	 * 
+	 * @param endingType エンディングタイプ
+	 * @return 適切な数残っている場合はtrue
+	 */
+	private boolean existsR(String endingType) {
+		int num = Util.countStr(endingType, R);
+		return PiecesNum.WR.exists(num) && PiecesNum.BR.exists(num);
+	}
 
+	/**
+	 * クイーンが適切な数残っているか
+	 * 
+	 * @param endingType エンディングタイプ
+	 * @return 適切な数残っている場合はtrue
+	 */
+	private boolean existsQ(String endingType) {
+		int num = Util.countStr(endingType, Q);
+		return PiecesNum.WQ.exists(num) && PiecesNum.BQ.exists(num);
+	}
+
+	/**
+	 * ビショップが適切な数残っているか
+	 * 
+	 * @param endingType エンディングタイプ
+	 * @return 適切な数残っている場合はtrue
+	 */
+	private boolean existsB(String endingType) {
 		if (endingType.contains(OB)) {
 			return existsOB();
 		} else if (endingType.contains(SB)) {
 			return existsSB();
-		} else if (Util.countStr(endingType, B) >= 2) {
-			return false;
+		} else if (Util.countStr(endingType, B) == 2) {
+			return PiecesNum.WRB.exists(1) && PiecesNum.WDB.exists(1) && PiecesNum.BRB.exists(1)
+					&& PiecesNum.BDB.exists(1);
 		} else if (Util.countStr(endingType, B) == 1) {
 			return existsOB() || existsSB();
-		}
-
-		return false;
+		} else
+			return PiecesNum.WRB.exists(0) && PiecesNum.WDB.exists(0) && PiecesNum.BRB.exists(0)
+					&& PiecesNum.BDB.exists(0);
 	}
 
 	/**
@@ -228,75 +289,6 @@ public class Pieces {
 			return true;
 		else
 			return false;
-	}
-
-	/**
-	 * ポーンエンディングであるか
-	 * 
-	 * @return ポーンエンディングである場合はtrue
-	 */
-	private boolean isPawnEnding() {
-		if (PiecesNum.WN.exists() || PiecesNum.WRB.exists() || PiecesNum.WDB.exists() || PiecesNum.WR.exists()
-				|| PiecesNum.WQ.exists() || PiecesNum.BN.exists() || PiecesNum.BRB.exists() || PiecesNum.BDB.exists()
-				|| PiecesNum.BR.exists() || PiecesNum.BQ.exists())
-			return false;
-		return PiecesNum.WP.exists() || PiecesNum.BP.exists();
-	}
-
-	/**
-	 * 適正なエンディングタイプであるか
-	 * 
-	 * @param endingType エンディングタイプ
-	 * @return 適正なエンディングタイプである場合はtrue
-	 */
-	public boolean isValidEndingType(String endingType) {
-		if (endingType.contains(SB) && endingType.contains(OB))
-			return false;
-		if (Util.countStr(endingType, SB) >= 2 || Util.countStr(endingType, OB) >= 2)
-			return false;
-
-		if (endingType.contains(SB) || endingType.contains(OB)) {
-			if (Util.countStr(endingType, B) >= 2)
-				return false;
-		}
-		return true;
-	}
-
-	/**
-	 * スタンダードの駒の初期配置と個数を設定する
-	 */
-	public void setDefaultPiece() {
-		String rank1 = new String(new char[] { WR, WN, WB, WQ, WK, WB, WN, WR });
-		String rank2 = new String(new char[] { WP, WP, WP, WP, WP, WP, WP, WP });
-		String rankEmpty = new String(EMPTYRANK);
-		String rank7 = new String(new char[] { BP, BP, BP, BP, BP, BP, BP, BP });
-		String rank8 = new String(new char[] { BR, BN, BB, BQ, BK, BB, BN, BR });
-
-		String pieces[] = { rank1, rank2, rankEmpty, rankEmpty, rankEmpty, rankEmpty, rank7, rank8 };
-		setDefaultPiece(pieces);
-	}
-
-	/**
-	 * 駒の初期配置と個数を設定する
-	 * 
-	 * @param pieces 初期配置される駒
-	 */
-	public void setDefaultPiece(String[] pieces) {
-		if (pieces.length != 8 || pieces[0].length() != 8)
-			return;
-		for (PiecesNum p : PiecesNum.values()) {
-			p.clear();
-		}
-		for (int rankIndex = 0; rankIndex < pieces.length; rankIndex++) {
-			defaultPiecePlace[rankIndex] = pieces[rankIndex].toCharArray();
-			for (int fileIndex = 0; fileIndex < pieces[rankIndex].length(); fileIndex++) {
-				String square = indexToSquare(fileIndex, rankIndex);
-				PiecesNum p = translatePiece(pieces[rankIndex].charAt(fileIndex), square);
-				if (p != null) {
-					p.generate();
-				}
-			}
-		}
 	}
 
 	/**
