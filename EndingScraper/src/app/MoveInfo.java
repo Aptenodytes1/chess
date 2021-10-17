@@ -59,42 +59,97 @@ public class MoveInfo {
 		}
 	}
 
+	/**
+	 * 手が駒取りであるか
+	 * 
+	 * @param move 手
+	 * @return 駒取りである場合はtrue
+	 */
 	private boolean isMoveCapture(String move) {
 		return move.contains("x");
 	}
 
+	/**
+	 * 手がプロモーションであるか
+	 * 
+	 * @param move 手
+	 * @return プロモーションである場合はtrue
+	 */
 	private boolean isMovePromotion(String move) {
 		return move.contains("=");
 	}
 
+	/**
+	 * 手がキャスリングであるか
+	 * 
+	 * @param move 手
+	 * @return キャスリングである場合はtrue
+	 */
 	private boolean isCastle(String move) {
 		return move.charAt(0) == 'O';
 	}
 
+	/**
+	 * 手がO-Oであるか
+	 * 
+	 * @param move 手
+	 * @return O-Oである場合はtrue
+	 */
 	private boolean isKingsideCastle(String move) {
 		return move.equals("O-O");
 	}
 
+	/**
+	 * 比較先の手と同じマスに移動しているか
+	 * 
+	 * @param m 比較する手
+	 * @return 同じマスに移動している場合はtrue
+	 */
 	public boolean isEqualSquare(MoveInfo m) {
 		return (this.square).equals(m.getSquare());
 	}
 
+	/**
+	 * インスタンスが保存している手が白番であるか
+	 * 
+	 * @return 白番である場合はtrue
+	 */
 	public boolean isWhiteMove() {
 		return this.isWhite;
 	}
 
+	/**
+	 * インスタンスが保存している手が駒取りであるか
+	 * 
+	 * @return 駒取りである場合はtrue
+	 */
 	public boolean isCapture() {
 		return isCapture;
 	}
 
+	/**
+	 * インスタンスが保存している手がプロモーションであるか
+	 * 
+	 * @return プロモーションである場合はtrue
+	 */
 	public boolean isPromotion() {
 		return isPromotion;
 	}
 
+	/**
+	 * インスタンスが保存している駒名を取得する
+	 * 
+	 * @return 駒名
+	 */
 	public char getPiece() {
 		return piece;
 	}
 
+	/**
+	 * インスタンスが保存しているプロモーション先の駒名を取得する
+	 * 
+	 * @return プロモーション先の駒
+	 */
 	public char getPromotionPiece() {
 		return promotionPiece;
 	}
@@ -122,18 +177,36 @@ public class MoveInfo {
 		return square;
 	}
 
-	public char getPromotionPiece(String move) {
+	/**
+	 * プロモーションした先の駒を取得する
+	 * 
+	 * @param move 手
+	 * @return プロモーションした先の駒名
+	 */
+	private char getPromotionPiece(String move) {
 		String patternResult = "(.*)=(.)(.*)";
 		Pattern p = Pattern.compile(patternResult);
 		return extract(move, p, 2).charAt(0);
 	}
 
-	public String getDestination(String move) {
+	/**
+	 * 行き先のマスを取得する
+	 * 
+	 * @param move 手
+	 * @return 行き先のマス
+	 */
+	private String getDestination(String move) {
 		String patternDest = ".*([a-h][1-8]).*";
 		Pattern p = Pattern.compile(patternDest);
 		return extract(move, p, 1);
 	}
 
+	/**
+	 * @param str
+	 * @param p
+	 * @param group
+	 * @return
+	 */
 	private String extract(String str, Pattern p, int group) {
 		Matcher m = p.matcher(str);
 		return m.matches() ? m.group(group) : null;

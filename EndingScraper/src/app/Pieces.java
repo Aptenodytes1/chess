@@ -70,6 +70,9 @@ public class Pieces {
 		}
 	};
 
+	/**
+	 * コンストラクタ
+	 */
 	public Pieces() {
 		setDefaultPiece();
 	}
@@ -79,23 +82,40 @@ public class Pieces {
 			EMPTYRANK, EMPTYRANK, EMPTYRANK, EMPTYRANK, { BP, BP, BP, BP, BP, BP, BP, BP },
 			{ BR, BN, BB, BQ, BK, BB, BN, BR } };
 
+	/**
+	 * 初期配置の駒を取り除く
+	 * 
+	 * @param square 取り除くマス
+	 */
 	public void removePieceOnDefaultSquare(String square) {
-		if (isValidSquare(square)) {
-			int fileIndex = fileToIndex(square);
-			int rankIndex = rankToIndex(square);
-			char removePiece = defaultPiecePlace[rankIndex][fileIndex];
-			PiecesNum p = translatePiece(removePiece, square);
-			if (p != null)
-				p.remove();
-		}
+		int fileIndex = fileToIndex(square);
+		int rankIndex = rankToIndex(square);
+		char removePiece = defaultPiecePlace[rankIndex][fileIndex];
+		PiecesNum p = translatePiece(removePiece, square);
+		if (p != null)
+			p.remove();
 	}
 
+	/**
+	 * 駒を取り除く
+	 * 
+	 * @param isWhitePieceRemoved 取り除かれた駒が白であるか
+	 * @param removedPiece        取り除かれた駒名
+	 * @param removedSquare       取り除かれたマス
+	 */
 	public void remove(boolean isWhitePieceRemoved, char removedPiece, String removedSquare) {
 		removedPiece = isWhitePieceRemoved ? Character.toUpperCase(removedPiece) : Character.toLowerCase(removedPiece);
 		PiecesNum p = translatePiece(removedPiece, removedSquare);
 		p.remove();
 	}
 
+	/**
+	 * 駒をプロモーションさせる
+	 * 
+	 * @param isWhitePiecePromoted プロモーションした駒が白であるか
+	 * @param promotedPiece        プロモーションした先の駒
+	 * @param promotedSquare       プロモーションしたマス
+	 */
 	public void promote(boolean isWhitePiecePromoted, char promotedPiece, String promotedSquare) {
 		promotedPiece = isWhitePiecePromoted ? Character.toUpperCase(promotedPiece)
 				: Character.toLowerCase(promotedPiece);
@@ -105,6 +125,12 @@ public class Pieces {
 		deleteP.remove();
 	}
 
+	/**
+	 * 残っている駒がエンディングタイプと合っているか
+	 * 
+	 * @param endingType エンディングタイプ
+	 * @return 合っている場合はtrue
+	 */
 	public boolean isEnding(String endingType) {
 		int WNnum = 0;
 		int WRBnum = 0;
@@ -121,8 +147,8 @@ public class Pieces {
 			System.out.println("Invalid endgameType.");
 			return false;
 		}
-		if (isPawnEndingType(endingType)) {
-			return isPawnEnding(endingType);
+		if (endingType.equals(P)) {
+			return isPawnEnding();
 		}
 
 		if (endingType.contains(N)) {
@@ -174,6 +200,11 @@ public class Pieces {
 		return false;
 	}
 
+	/**
+	 * 異色ビショップが残っているか
+	 * 
+	 * @return 異色ビショップが残っている場合true
+	 */
 	private boolean existsOB() {
 		if (PiecesNum.WRB.exists(1) && PiecesNum.WDB.exists(0) && PiecesNum.BRB.exists(0) && PiecesNum.BDB.exists(1))
 			return true;
@@ -184,6 +215,11 @@ public class Pieces {
 			return false;
 	}
 
+	/**
+	 * 同色ビショップが残っているか
+	 * 
+	 * @return 同色ビショップが残っている場合true
+	 */
 	private boolean existsSB() {
 		if (PiecesNum.WRB.exists(1) && PiecesNum.WDB.exists(0) && PiecesNum.BRB.exists(1) && PiecesNum.BDB.exists(0))
 			return true;
@@ -194,15 +230,12 @@ public class Pieces {
 			return false;
 	}
 
-	private boolean isPawnEndingType(String endingType) {
-		if (!endingType.contains(P))
-			return false;
-		if (endingType.contains(N) || endingType.contains(B) || endingType.contains(R) || endingType.contains(Q))
-			return false;
-		return true;
-	}
-
-	private boolean isPawnEnding(String endingType) {
+	/**
+	 * ポーンエンディングであるか
+	 * 
+	 * @return ポーンエンディングである場合はtrue
+	 */
+	private boolean isPawnEnding() {
 		if (PiecesNum.WN.exists() || PiecesNum.WRB.exists() || PiecesNum.WDB.exists() || PiecesNum.WR.exists()
 				|| PiecesNum.WQ.exists() || PiecesNum.BN.exists() || PiecesNum.BRB.exists() || PiecesNum.BDB.exists()
 				|| PiecesNum.BR.exists() || PiecesNum.BQ.exists())
@@ -210,26 +243,28 @@ public class Pieces {
 		return PiecesNum.WP.exists() || PiecesNum.BP.exists();
 	}
 
+	/**
+	 * 適正なエンディングタイプであるか
+	 * 
+	 * @param endingType エンディングタイプ
+	 * @return 適正なエンディングタイプである場合はtrue
+	 */
 	public boolean isValidEndingType(String endingType) {
 		if (endingType.contains(SB) && endingType.contains(OB))
 			return false;
 		if (Util.countStr(endingType, SB) >= 2 || Util.countStr(endingType, OB) >= 2)
 			return false;
 
-		if (endingType.contains(SB)) {
-			endingType = endingType.replace(SB, "");
-			if (endingType.contains(B))
-				return false;
-		}
-		if (endingType.contains(OB)) {
-			endingType = endingType.replace(OB, "");
-			if (endingType.contains(B))
+		if (endingType.contains(SB) || endingType.contains(OB)) {
+			if (Util.countStr(endingType, B) >= 2)
 				return false;
 		}
 		return true;
 	}
 
-	// スタンダードの駒の初期配置と個数を設定する
+	/**
+	 * スタンダードの駒の初期配置と個数を設定する
+	 */
 	public void setDefaultPiece() {
 		String rank1 = new String(new char[] { WR, WN, WB, WQ, WK, WB, WN, WR });
 		String rank2 = new String(new char[] { WP, WP, WP, WP, WP, WP, WP, WP });
@@ -241,7 +276,11 @@ public class Pieces {
 		setDefaultPiece(pieces);
 	}
 
-	// 駒の初期配置と個数を設定する
+	/**
+	 * 駒の初期配置と個数を設定する
+	 * 
+	 * @param pieces 初期配置される駒
+	 */
 	public void setDefaultPiece(String[] pieces) {
 		if (pieces.length != 8 || pieces[0].length() != 8)
 			return;
@@ -260,22 +299,13 @@ public class Pieces {
 		}
 	}
 
-	public void printStatus() {
-		for (int i = defaultPiecePlace.length - 1; i >= 0; i--)
-			System.out.println(defaultPiecePlace[i]);
-		printNums();
-	}
-
-	public void printNums() {
-		for (PiecesNum p : PiecesNum.values()) {
-			System.out.print(p.toString());
-			System.out.print(":" + p.num + " ");
-			if (p == PiecesNum.WK)
-				System.out.println();
-		}
-		System.out.println();
-	}
-
+	/**
+	 * 駒名を個数オブジェクトに変換する
+	 * 
+	 * @param piece  駒名
+	 * @param square 駒のいるマス
+	 * @return 個数を保存するオブジェクト
+	 */
 	private PiecesNum translatePiece(char piece, String square) {
 		switch (piece) {
 		case WP:
@@ -312,31 +342,45 @@ public class Pieces {
 		return null;
 	}
 
-	private boolean isValidSquare(String square) {
-		if (square.length() == 2) {
-			if ('a' <= square.charAt(0) && square.charAt(0) <= 'h' && '1' <= square.charAt(1)
-					&& square.charAt(1) <= '8')
-				return true;
-			else
-				return false;
-		} else
-			return false;
-	}
-
+	/**
+	 * ファイルを数値に変換する
+	 * 
+	 * @param square マス
+	 * @return aファイル=0, hファイル=7
+	 */
 	private int fileToIndex(String square) {
 		return square.charAt(0) - 'a';
 	}
 
+	/**
+	 * ランクを数値に変換する
+	 * 
+	 * @param square マス
+	 * @return 1ランク=0, 8ランク=7
+	 */
 	private int rankToIndex(String square) {
 		return square.charAt(1) - '1';
 	}
 
+	/**
+	 * ファイルとランクを数値からマスに変換する
+	 * 
+	 * @param fileIndex ファイル
+	 * @param rankIndex ランク
+	 * @return マス
+	 */
 	private String indexToSquare(int fileIndex, int rankIndex) {
 		char file = (char) ('a' + fileIndex);
 		char rank = (char) ('1' + rankIndex);
 		return new String(new char[] { file, rank });
 	}
 
+	/**
+	 * 黒マスであるか
+	 * 
+	 * @param square マス
+	 * @return 黒マスであればtrue
+	 */
 	private boolean isDarkSquare(String square) {
 		int fileIndex = fileToIndex(square);
 		int rankIndex = rankToIndex(square);

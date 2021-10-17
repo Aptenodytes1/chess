@@ -5,38 +5,66 @@ import java.util.regex.Pattern;
 
 public class EndingDetector {
 
-	MoveInfo[] whiteMoves;
-	MoveInfo[] blackMoves;
-
+	/**
+	 * 試合結果を削除する
+	 * 
+	 * @param score 棋譜
+	 * @return 削除対象を削除した棋譜
+	 */
 	private String removeResult(String score) {
-
 		String patternResult = "(.+) (1-0|0-1|1/2-1/2|\\*)";
 		Pattern p = Pattern.compile(patternResult);
 		Matcher matcher = p.matcher(score);
 		return matcher.replaceAll("$1");
 	}
 
+	/**
+	 * +と#をの記載を削除する
+	 * 
+	 * @param score 棋譜
+	 * @return 削除対象を削除した棋譜
+	 */
 	private String removeCheckAndMate(String score) {
 		score = score.replaceAll("\\+", "");
 		score = score.replaceAll("#", "");
 		return score;
 	}
 
+	/**
+	 * !と?を削除する
+	 * 
+	 * @param score 棋譜
+	 * @return 削除対象を削除した棋譜
+	 */
 	private String removeAnnotation(String score) {
 		score = score.replaceAll("!", "");
 		score = score.replaceAll("\\?", "");
 		return score;
 	}
 
+	/**
+	 * 手番表記を削除する
+	 * 
+	 * @param score 棋譜
+	 * @return 削除対象を削除した棋譜
+	 */
 	private String removeTurn(String score) {
 		score = score.replaceAll("[0-9]+\\. ", "");
 		score = score.replaceAll("[0-9]+\\.", "");
 		return score;
 	}
 
+	/**
+	 * 棋譜のエンドゲームが指定したエンディングタイプと適合しているか
+	 * 
+	 * @param score      棋譜
+	 * @param endingType エンディングタイプ
+	 * @return 適合している場合はtrue
+	 */
 	public boolean isEnding(String score, String endingType) {
 		MoveInfo[] moves = scoreToMoves(score);
-		setWBMoves(moves);
+		MoveInfo[] whiteMoves = getWBMoves(moves)[0];
+		MoveInfo[] blackMoves = getWBMoves(moves)[1];
 		Pieces p = new Pieces();
 
 		for (int ply = 0; ply < moves.length; ply++) {
@@ -50,10 +78,8 @@ public class EndingDetector {
 
 			boolean removeDefaultSquare = true;
 			if (m.isCapture()) {
-				int i;
-
 				int startTurn = isWhiteTurn ? turn - 1 : turn;
-				for (i = startTurn; i >= 0; i--) {
+				for (int i = startTurn; i >= 0; i--) {
 					MoveInfo checkMove = isWhiteTurn ? blackMoves[i] : whiteMoves[i];
 					if (m.isEqualSquare(checkMove)) {
 						p.remove(!isWhiteTurn, checkMove.getPiece(), checkMove.getSquare());
@@ -72,21 +98,32 @@ public class EndingDetector {
 		return false;
 	}
 
-	private void setWBMoves(MoveInfo[] moves) {
+	/**
+	 * 手の配列を白の手と黒の手に振り分ける
+	 * 
+	 * @param moves 手の配列
+	 * @return [0]:白の手の配列 [1]:黒の手の配列
+	 */
+	private MoveInfo[][] getWBMoves(MoveInfo[] moves) {
 		int ply = moves.length;
 		int whitePly = (ply + 1) / 2;
-		int blackPly = ply - whitePly;
+		MoveInfo[][] WBMoves = new MoveInfo[2][whitePly];
 
-		this.whiteMoves = new MoveInfo[whitePly];
-		this.blackMoves = new MoveInfo[blackPly];
 		for (int i = 0; i < ply; i++) {
 			if (moves[i].isWhiteMove())
-				whiteMoves[i / 2] = moves[i];
+				WBMoves[0][i / 2] = moves[i];
 			else
-				blackMoves[i / 2] = moves[i];
+				WBMoves[1][i / 2] = moves[i];
 		}
+		return WBMoves;
 	}
 
+	/**
+	 * 棋譜を手(MoveInfo型)の配列に変換する
+	 * 
+	 * @param score 棋譜
+	 * @return 手の配列
+	 */
 	private MoveInfo[] scoreToMoves(String score) {
 		String s = removeResult(score);
 		s = removeAnnotation(s);

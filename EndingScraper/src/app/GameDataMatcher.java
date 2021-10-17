@@ -1,4 +1,5 @@
 package app;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,11 +69,6 @@ public class GameDataMatcher {
 	private String extract(String str, Pattern p) {
 		Matcher m = p.matcher(str);
 		return m.matches() ? m.group(1) : null;
-	}
-
-	private String extract(String str, Pattern p, int group) {
-		Matcher m = p.matcher(str);
-		return m.matches() ? m.group(group) : null;
 	}
 
 	public String extractSite(String str) {
