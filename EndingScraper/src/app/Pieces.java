@@ -126,30 +126,27 @@ public class Pieces {
 	}
 
 	/**
-	 * 駒を取り除く
+	 * 指定された手で動かされた駒を取り除く
 	 * 
-	 * @param isWhitePieceRemoved 取り除かれた駒が白であるか
-	 * @param removedPiece        取り除かれた駒名
-	 * @param removedSquare       取り除かれたマス
+	 * @param move 手
 	 */
-	public void remove(boolean isWhitePieceRemoved, char removedPiece, String removedSquare) {
-		removedPiece = isWhitePieceRemoved ? Character.toUpperCase(removedPiece) : Character.toLowerCase(removedPiece);
-		PiecesNum p = translatePiece(removedPiece, removedSquare);
+	public void remove(MoveInfo move) {
+		char removedPiece = move.isWhiteMove() ? Character.toUpperCase(move.getPiece())
+				: Character.toLowerCase(move.getPiece());
+		PiecesNum p = translatePiece(removedPiece, move.getSquare());
 		p.remove();
 	}
 
 	/**
-	 * 駒をプロモーションさせる
+	 * 指定された手で動かされた駒をプロモーションさせる
 	 * 
-	 * @param isWhitePiecePromoted プロモーションした駒が白であるか
-	 * @param promotedPiece        プロモーションした先の駒
-	 * @param promotedSquare       プロモーションしたマス
+	 * @param move 手
 	 */
-	public void promote(boolean isWhitePiecePromoted, char promotedPiece, String promotedSquare) {
-		promotedPiece = isWhitePiecePromoted ? Character.toUpperCase(promotedPiece)
-				: Character.toLowerCase(promotedPiece);
-		PiecesNum p = translatePiece(promotedPiece, promotedSquare);
-		PiecesNum deleteP = isWhitePiecePromoted ? PiecesNum.WP : PiecesNum.BP;
+	public void promote(MoveInfo move) {
+		char promotedPiece = move.isWhiteMove() ? Character.toUpperCase(move.getPromotionPiece())
+				: Character.toLowerCase(move.getPromotionPiece());
+		PiecesNum p = translatePiece(promotedPiece, move.getSquare());
+		PiecesNum deleteP = move.isWhiteMove() ? PiecesNum.WP : PiecesNum.BP;
 		p.generate();
 		deleteP.remove();
 	}
@@ -165,7 +162,7 @@ public class Pieces {
 			return false;
 		if (Util.countStr(endingType, SB) >= 2 || Util.countStr(endingType, OB) >= 2)
 			return false;
-	
+
 		if (endingType.contains(SB) || endingType.contains(OB)) {
 			if (Util.countStr(endingType, B) >= 2)
 				return false;
@@ -181,16 +178,16 @@ public class Pieces {
 	 */
 	public boolean isEnding(String endingType) {
 		boolean checkResult = true;
-	
+
 		if (endingType.equals(P)) {
 			return isPawnEnding();
 		}
-	
+
 		checkResult &= existsN(endingType);
 		checkResult &= existsR(endingType);
 		checkResult &= existsQ(endingType);
 		checkResult &= existsB(endingType);
-	
+
 		return checkResult;
 	}
 

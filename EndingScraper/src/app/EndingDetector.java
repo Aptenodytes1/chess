@@ -73,26 +73,27 @@ public class EndingDetector {
 		}
 
 		for (int ply = 0; ply < moves.length; ply++) {
+			MoveInfo m = moves[ply];
 			boolean isWhiteTurn = (ply % 2 == 0) ? true : false;
 			int turn = ply / 2;
-			MoveInfo m = moves[ply];
+			int opponentsLastTurn = isWhiteTurn ? turn - 1 : turn;
+			MoveInfo[] opponentsMoves = isWhiteTurn ? blackMoves : whiteMoves;
 
 			if (m.isPromotion()) {
-				p.promote(isWhiteTurn, m.getPromotionPiece(), m.getSquare());
+				p.promote(m);
 			}
 
-			boolean removeDefaultSquare = true;
+			boolean pieceIsMovedInGame = false;
 			if (m.isCapture()) {
-				int startTurn = isWhiteTurn ? turn - 1 : turn;
-				for (int i = startTurn; i >= 0; i--) {
-					MoveInfo checkMove = isWhiteTurn ? blackMoves[i] : whiteMoves[i];
+				for (int i = opponentsLastTurn; i >= 0; i--) {
+					MoveInfo checkMove = opponentsMoves[i];
 					if (m.isEqualSquare(checkMove)) {
-						p.remove(!isWhiteTurn, checkMove.getPiece(), checkMove.getSquare());
-						removeDefaultSquare = false;
+						p.remove(checkMove);
+						pieceIsMovedInGame = true;
 						break;
 					}
 				}
-				if (removeDefaultSquare) {
+				if (!pieceIsMovedInGame) {
 					p.removePieceOnDefaultSquare(m.getSquare());
 				}
 			}
