@@ -34,39 +34,12 @@ public class GamePusher {
 				reader.seek(pointer);
 			}
 
-			while (!gdm.matchEvent(line)) {
-				line = reader.readLine();
-				// 読み込んだ位置を記録する
-				nextReturn = reader.getFilePointer();
-				if (line == null) {
-					break;
-				}
-
-				// 前回読み込んだ位置に戻り、今回の読み取り範囲をbyte配列で取得する(任意の文字コードで文字列に変換するため)
-				{
-					reader.seek(pointer);
-					byte[] bytes = new byte[(int) (nextReturn - pointer)];
-					reader.read(bytes);
-					pointer = reader.getFilePointer();
-					line = new String(bytes, charset);
-					// 末尾の改行コードを除去
-					while (line.endsWith("\r") || line.endsWith("\n")) {
-						line = line.substring(0, line.length() - 1);
-					}
-				}
-
-				++lineNumber;
-			}
-
-			if (line == null)
-				return null;
-
 			while (!gdm.matchScore(line)) {
 				line = reader.readLine();
 				// 読み込んだ位置を記録する
 				nextReturn = reader.getFilePointer();
 				if (line == null) {
-					break;
+					return null;
 				}
 
 				// 前回読み込んだ位置に戻り、今回の読み取り範囲をbyte配列で取得する(任意の文字コードで文字列に変換するため)
@@ -81,13 +54,13 @@ public class GamePusher {
 						line = line.substring(0, line.length() - 1);
 					}
 				}
-
-				++lineNumber;
 				if (gdm.matchSite(line)) {
 					game.setSite(gdm.extractSite(line));
 				} else if (gdm.matchScore(line)) {
 					game.setScore(line);
 				}
+
+				++lineNumber;
 			}
 			reader.close();
 		} finally {
