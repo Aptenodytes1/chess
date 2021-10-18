@@ -1,76 +1,53 @@
 package app;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 public class GamePusher {
-	private String path;
-	// Charset
-	Charset charset = StandardCharsets.UTF_8;
-	// 読み込んだ前回位置
-	long pointer = 0;
-	// 読み込んだ最終位置
-	long nextReturn;
-	RandomAccessFile reader = null;
-	int lineNumber = 0;
-	GameDataMatcher gdm = new GameDataMatcher();
+	BufferedReader br;
 
-	public GamePusher(String path) {
-		this.path = path;
+	/**
+	 * コンストラクタ
+	 * 
+	 * @param path ファイルパス
+	 * @throws FileNotFoundException 指定のファイルが見つからない場合
+	 */
+	public GamePusher(String path) throws FileNotFoundException {
+		FileReader fileReader = new FileReader(new File(path));
+		br = new BufferedReader(fileReader);
 	}
 
-	public GameInfo pushGame() throws FileNotFoundException, IOException {
+	/**
+	 * ファイルに記録されたゲームを取得する ファイルの最後まで読み込んだ場合、ファイルストリームをクローズする
+	 * 
+	 * @return ゲーム情報
+	 * @throws IOException ファイル読み込みでエラーが発生した場合
+	 */
+	@SuppressWarnings("unused")
+	public GameInfo pushGame() throws IOException {
 		String line = "";
+		GameDataMatcher gdm = new GameDataMatcher();
 		GameInfo game = new GameInfo("", "");
-		try {
-			reader = new RandomAccessFile(new File(path), "r");
 
-			// 初回でない場合は前回読み込んだところを探す
-			if (pointer != 0) {
-				reader.seek(pointer);
+		for (line = ""; !gdm.matchScore(line);) {
+			line = br.readLine();
+			if (line == null) {
+				return null;
 			}
 
-			while (!gdm.matchScore(line)) {
-				line = reader.readLine();
-				// 読み込んだ位置を記録する
-				nextReturn = reader.getFilePointer();
-				if (line == null) {
-					return null;
-				}
-
-				// 前回読み込んだ位置に戻り、今回の読み取り範囲をbyte配列で取得する(任意の文字コードで文字列に変換するため)
-				{
-					reader.seek(pointer);
-					byte[] bytes = new byte[(int) (nextReturn - pointer)];
-					reader.read(bytes);
-					pointer = reader.getFilePointer();
-					line = new String(bytes, charset);
-					// 末尾の改行コードを除去
-					while (line.endsWith("\r") || line.endsWith("\n")) {
-						line = line.substring(0, line.length() - 1);
-					}
-				}
-				if (gdm.matchSite(line)) {
-					game.setSite(gdm.extractSite(line));
-				} else if (gdm.matchScore(line)) {
-					game.setScore(line);
-				}
-
-				++lineNumber;
-			}
-			reader.close();
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-				}
+			if (gdm.matchSite(line)) {
+				game.setSite(gdm.extractSite(line));
+			} else if (gdm.matchScore(line)) {
+				game.setScore(line);
 			}
 		}
+		if (line == null) {
+			br.close();
+		}
+
 		return game;
 	}
 }

@@ -17,16 +17,23 @@ public class Main {
 		String[] path2 = { "F:\\Downloads\\Blitz_2019-03-30_2020-03-29.pgn" };
 		String[] path = path1;
 
-		String[] endingType = { "BB", "OB", "SB", "Q", "R", "N", "BN" };
-//		String[] endingType = { "BB" };
+		String[] endingType1 = { "BB", "OB", "SB", "Q", "R", "N", "BN" };
+		String[] endingType2 = { "BB" };
+		String[] endingType = endingType1;
 
 		GameInfo game;
 		EndingDetector ed = new EndingDetector();
 
+//		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < endingType.length; i++) {
 			System.out.println(endingType[i] + " ending games:");
 			for (int j = 0; j < path.length; j++) {
-				GamePusher pusher = new GamePusher(path[j]);
+				GamePusher pusher = null;
+				try {
+					pusher = new GamePusher(path[j]);
+				} catch (FileNotFoundException e1) {
+					break;
+				}
 
 				try {
 					do {
@@ -48,6 +55,10 @@ public class Main {
 			}
 			System.out.println();
 		}
+//		long endTime = System.currentTimeMillis();
+//		System.out.println("開始時刻：" + startTime + " ms");
+//		System.out.println("終了時刻：" + endTime + " ms");
+//		System.out.println("処理時間：" + (endTime - startTime) + " ms");
 		System.out.println("finish.");
 	}
 }
