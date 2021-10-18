@@ -9,7 +9,7 @@ public class MoveInfo {
 	 */
 	private boolean isWhite = true;
 	/**
-	 * 動かした駒名
+	 * 動かした駒名 PNBRQKのいずれか
 	 */
 	private char piece;
 	/**
@@ -25,7 +25,7 @@ public class MoveInfo {
 	 */
 	private boolean isPromotion = false;
 	/**
-	 * プロモーション先の駒名
+	 * プロモーション先の駒名 NBRQのいずれか
 	 */
 	private char promotionPiece = '-';
 
@@ -38,45 +38,11 @@ public class MoveInfo {
 	public MoveInfo(String move, boolean isWhite) {
 		super();
 		this.isWhite = isWhite;
-		if (isCastle(move)) {
-			this.piece = 'R';
-			this.isCapture = false;
-			this.isPromotion = false;
-
-			String rookFile, rookRank;
-			rookRank = isWhite ? "1" : "8";
-			rookFile = isKingsideCastle(move) ? "f" : "d";
-
-			this.square = rookFile + rookRank;
-			this.promotionPiece = '-';
-		} else {
-			this.piece = getMovedPiece(move);
-			this.square = getDestination(move);
-			this.isCapture = isMoveCapture(move);
-			this.isPromotion = isMovePromotion(move);
-
-			this.promotionPiece = isPromotion ? getPromotionPiece(move) : '-';
-		}
-	}
-
-	/**
-	 * 手が駒取りであるか
-	 * 
-	 * @param move 手
-	 * @return 駒取りである場合はtrue
-	 */
-	private boolean isMoveCapture(String move) {
-		return move.contains("x");
-	}
-
-	/**
-	 * 手がプロモーションであるか
-	 * 
-	 * @param move 手
-	 * @return プロモーションである場合はtrue
-	 */
-	private boolean isMovePromotion(String move) {
-		return move.contains("=");
+		this.piece = getMovedPiece(move);
+		this.square = getDestination(move);
+		this.isCapture = isMoveCapture(move);
+		this.isPromotion = isMovePromotion(move);
+		this.promotionPiece = getPromotionPiece(move);
 	}
 
 	/**
@@ -155,20 +121,6 @@ public class MoveInfo {
 	}
 
 	/**
-	 * 動かした駒名を取得する。
-	 * 
-	 * @param move 手
-	 * @return 駒名
-	 */
-	private char getMovedPiece(String move) {
-		char c = move.charAt(0);
-		if ('a' <= c && c <= 'h')
-			return 'P';
-		else
-			return c;
-	}
-
-	/**
 	 * インスタンスが保持するマスを取得する。
 	 * 
 	 * @return 座標
@@ -178,15 +130,20 @@ public class MoveInfo {
 	}
 
 	/**
-	 * プロモーションした先の駒を取得する
+	 * 動かした駒名を取得する。
 	 * 
 	 * @param move 手
-	 * @return プロモーションした先の駒名
+	 * @return 駒名
 	 */
-	private char getPromotionPiece(String move) {
-		String patternResult = "(.*)=(.)(.*)";
-		Pattern p = Pattern.compile(patternResult);
-		return extract(move, p, 2).charAt(0);
+	private char getMovedPiece(String move) {
+		if (isCastle(move))
+			return 'R';
+
+		char c = move.charAt(0);
+		if ('a' <= c && c <= 'h')
+			return 'P';
+		else
+			return c;
 	}
 
 	/**
@@ -196,9 +153,48 @@ public class MoveInfo {
 	 * @return 行き先のマス
 	 */
 	private String getDestination(String move) {
+		if (isCastle(move)) {
+			String rookFile = isKingsideCastle(move) ? "f" : "d";
+			String rookRank = isWhite ? "1" : "8";
+			return rookFile + rookRank;
+		}
 		String patternDest = ".*([a-h][1-8]).*";
 		Pattern p = Pattern.compile(patternDest);
 		return extract(move, p, 1);
+	}
+
+	/**
+	 * 手が駒取りであるか
+	 * 
+	 * @param move 手
+	 * @return 駒取りである場合はtrue
+	 */
+	private boolean isMoveCapture(String move) {
+		return move.contains("x");
+	}
+
+	/**
+	 * 手がプロモーションであるか
+	 * 
+	 * @param move 手
+	 * @return プロモーションである場合はtrue
+	 */
+	private boolean isMovePromotion(String move) {
+		return move.contains("=");
+	}
+
+	/**
+	 * プロモーションした先の駒を取得する
+	 * 
+	 * @param move 手
+	 * @return プロモーションした先の駒名
+	 */
+	private char getPromotionPiece(String move) {
+		if (!move.contains("="))
+			return '-';
+		String patternResult = "(.*)=(.)(.*)";
+		Pattern p = Pattern.compile(patternResult);
+		return extract(move, p, 2).charAt(0);
 	}
 
 	/**
