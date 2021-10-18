@@ -55,13 +55,13 @@ public class EndingDetector {
 	}
 
 	/**
-	 * 棋譜のエンドゲームが指定したエンディングタイプと適合しているか
+	 * 棋譜が指定したエンディングタイプに突入したときのプライ数を返す
 	 * 
 	 * @param score      棋譜
 	 * @param endingType エンディングタイプ
-	 * @return 適合している場合はtrue
+	 * @return プライ数 エンドゲームが不適合である場合、0を返す
 	 */
-	public boolean isEnding(String score, String endingType) {
+	public int getEndingPly(String score, String endingType) {
 		MoveInfo[] moves = scoreToMoves(score);
 		MoveInfo[] whiteMoves = getWBMoves(moves)[0];
 		MoveInfo[] blackMoves = getWBMoves(moves)[1];
@@ -69,7 +69,7 @@ public class EndingDetector {
 
 		if (!p.isValidEndingType(endingType)) {
 			System.out.println("Invalid endgameType.");
-			return false;
+			return 0;
 		}
 
 		for (int ply = 0; ply < moves.length; ply++) {
@@ -99,9 +99,9 @@ public class EndingDetector {
 			}
 
 			if (p.isEnding(endingType))
-				return true;
+				return ply + 1;
 		}
-		return false;
+		return 0;
 	}
 
 	/**

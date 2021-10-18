@@ -39,9 +39,9 @@ public class Main {
 					do {
 						game = pusher.pushGame();
 						if (game != null) {
-							boolean b = ed.isEnding(game.getScore(), endingType[i]);
-							if (b) {
-								System.out.println(game.getSite());
+							int ply = ed.getEndingPly(game.getScore(), endingType[i]);
+							if (ply != 0) {
+								System.out.println(game.getSite() + "#" + ply);
 							}
 						}
 					} while (game != null);
