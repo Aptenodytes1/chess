@@ -3,6 +3,8 @@ package app;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import window.SystemWindow;
+
 public class Main {
 	public static void main(String[] args) {
 		String[] path1 = { "F:\\Downloads\\Blitz_2019-03-30_2020-03-29.pgn", // [0]
@@ -24,6 +26,11 @@ public class Main {
 		GameInfo game;
 		EndingDetector ed = new EndingDetector();
 
+		SystemWindow window = new SystemWindow();
+//		DropAndListFileName_scroll2 window2 = new DropAndListFileName_scroll2();
+//		JScrollPaneTest4 frame = new JScrollPaneTest4();
+//		frame.method();
+
 //		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < endingType.length; i++) {
 			System.out.println(endingType[i] + " ending games:");
@@ -32,6 +39,7 @@ public class Main {
 				try {
 					pusher = new GamePusher(path[j]);
 				} catch (FileNotFoundException e1) {
+					System.out.println("File not found.");
 					break;
 				}
 
@@ -45,9 +53,6 @@ public class Main {
 							}
 						}
 					} while (game != null);
-
-				} catch (FileNotFoundException e) {
-					System.out.println("File not found.");
 				} catch (IOException e) {
 					// TODO 自動生成された catch ブロック
 					e.printStackTrace();
