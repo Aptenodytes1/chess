@@ -17,14 +17,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
 import baseComponents.Exportable;
+import baseComponents.StateWatchingJLabel;
 
-public class DropFilePanel extends JPanel implements DropTargetListener, Exportable, ActionListener {
-	JLabel dropAreaLabel;
+/**
+ * ファイルをドロップし、ドロップされたファイルパスを表示するラベルを作成します。
+ * 
+ * @author Aptenodytes
+ *
+ */
+public class DropFileLabel extends StateWatchingJLabel implements DropTargetListener, Exportable, ActionListener {
+	/**
+	 * ファイルパス
+	 */
 	List<String> paths = new ArrayList<String>();
 
 	/**
@@ -33,25 +38,20 @@ public class DropFilePanel extends JPanel implements DropTargetListener, Exporta
 	 * @param width  幅
 	 * @param height 高さ
 	 */
-	public DropFilePanel(int width, int height) {
-		dropAreaLabel = new JLabel("ドロップ待ちです。");
-		dropAreaLabel.setForeground(Color.GRAY);
-		dropAreaLabel.setOpaque(true);
-		dropAreaLabel.setBackground(Color.WHITE);
-
-		JScrollPane dropAreaScrollpane = new JScrollPane(dropAreaLabel);
-		dropAreaScrollpane.setPreferredSize(new Dimension(width, height));
-
-		this.add(dropAreaScrollpane);
+	public DropFileLabel(int width, int height) {
+		super("ドロップ待ちです。");
+		this.setOpaque(true);
+		this.setBackground(Color.WHITE);
+		this.setPreferredSize(new Dimension(width, height));
 	}
 
 	/**
-	 * 保存されているパスをクリアする 表示内容もクリア
+	 * 保存されているパスと表示内容をクリアする
 	 */
-	public void clear() {
+	private void clear() {
 		this.paths.clear();
-		dropAreaLabel.setForeground(Color.GRAY);
-		dropAreaLabel.setText("ドロップ待ちです。");
+		this.setForeground(Color.GRAY);
+		this.setText("ドロップ待ちです。");
 	}
 
 	// ポイント1．ドロップイベントを受け取るには「DropTargetListener.drop」を実装します。
@@ -76,7 +76,7 @@ public class DropFilePanel extends JPanel implements DropTargetListener, Exporta
 				// ファイルは「List<File>」にキャストして操作するとよいです。
 				List<File> list = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
 				for (File file : list) {
-					if (!paths.contains(file.getPath()))
+					if (!paths.contains(file.getPath()) && file.getPath().endsWith(".pgn"))
 						paths.add(file.getPath());
 				}
 				for (String path : paths) {
@@ -96,16 +96,15 @@ public class DropFilePanel extends JPanel implements DropTargetListener, Exporta
 
 			if (flg) {
 				// ドロップされたオブジェクトをJLabelに設定します。
-				dropAreaLabel.setText(str);
+				this.setText(str);
 			} else {
 				// ドロップを受け取れなかった場合はこちらで。
-				dropAreaLabel.setText("ドロップを受け取りできませんでした。");
+				this.setText("ドロップを受け取りできませんでした。");
 			}
 		}
 
 	}
 
-	// drop以外のメソッドは今回使わないので実装しません。
 	@Override
 	public void dragEnter(DropTargetDragEvent dtde) {
 	}
@@ -122,15 +121,19 @@ public class DropFilePanel extends JPanel implements DropTargetListener, Exporta
 	public void dragExit(DropTargetEvent dte) {
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object export() {
-		// TODO 自動生成されたメソッド・スタブ
 		return paths;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO 自動生成されたメソッド・スタブ
 		clear();
 	}
 }

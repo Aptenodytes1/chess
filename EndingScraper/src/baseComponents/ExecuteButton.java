@@ -1,22 +1,52 @@
 package baseComponents;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JPanel;
 
-public class ExecuteButton extends JPanel {
-	JButton button = new JButton("");
+public class ExecuteButton extends JButton implements StateChangeListener, ActionListener {
+	/**
+	 * データソース
+	 */
+	private Exportable dataSource;
 
+	/**
+	 * コンストラクタ
+	 * 
+	 * @param buttonName ボタン名
+	 */
 	public ExecuteButton(String buttonName) {
-		super();
-		this.add(button);
-		button.setText(buttonName);
-		button.addActionListener(null);
+		super(buttonName);
+		addActionListener(this);
 	}
 
-	public void addActionListener(ActionListener l) {
-		button.addActionListener(l);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void stateChanged(StateChangeEvent e) {
+		this.setEnabled(true);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (dataSource != null && ((List<String>) dataSource.export()).size() != 0) {
+			this.setEnabled(false);
+		}
+	}
+
+	/**
+	 * データソースを設定する。
+	 * 
+	 * @param source データソース
+	 */
+	public void setDataSource(Exportable dataSource) {
+		this.dataSource = dataSource;
 	}
 
 }
