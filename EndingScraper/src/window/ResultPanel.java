@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import app.EndingDetector;
 import app.GameInfo;
@@ -50,13 +51,19 @@ public class ResultPanel extends JScrollPane implements ActionListener, Exportab
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		List<String> paths = (List<String>) pathsSource.export();
-		String endingType = "R";
+		List<String> endingType = getEndingType(endingTypeSource);
 
+		getEndingType(endingTypeSource);
 		outputText.setText("");
-		if (!paths.isEmpty()) {
-			showResult(outputText, paths, endingType);
-		} else
+		if (paths.isEmpty())
 			outputText.setText("No file selected.\n");
+		else if (endingType.isEmpty())
+			outputText.setText("No ending type selected.\n");
+		else {
+			for (String et : endingType) {
+				showResult(outputText, paths, et);
+			}
+		}
 	}
 
 	/**
@@ -93,6 +100,7 @@ public class ResultPanel extends JScrollPane implements ActionListener, Exportab
 				outputText.append("Exception.\n");
 			}
 		}
+		outputText.append("\n");
 	}
 
 	/**
@@ -102,8 +110,13 @@ public class ResultPanel extends JScrollPane implements ActionListener, Exportab
 	 * @return エンディングタイプのリスト
 	 */
 	private List<String> getEndingType(List<Exportable> source) {
-		// TODO implement
-		return null;
+		List<String> type = new ArrayList<String>();
+		for (int i = 0; i < endingTypeSource.size(); i++) {
+			String endingType = ((JTextField) (endingTypeSource.get(i))).getText();
+			if (endingType != null && !endingType.equals(""))
+				type.add(endingType);
+		}
+		return type;
 	}
 
 	/**
@@ -112,8 +125,7 @@ public class ResultPanel extends JScrollPane implements ActionListener, Exportab
 	 * @param source データソース
 	 */
 	public void setPathsDatasource(Exportable source) {
-		if (source instanceof DropFileLabel)
-			this.pathsSource = source;
+		this.pathsSource = source;
 	}
 
 	/**
@@ -122,8 +134,7 @@ public class ResultPanel extends JScrollPane implements ActionListener, Exportab
 	 * @param source データソース
 	 */
 	public void setEndingTypeDatasource(Exportable source) {
-		if (source instanceof DropFileLabel)
-			this.endingTypeSource.add(source);
+		this.endingTypeSource.add(source);
 	}
 
 	/**

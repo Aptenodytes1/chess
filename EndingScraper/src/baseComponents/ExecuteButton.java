@@ -5,8 +5,17 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
-public class ExecuteButton extends JButton implements StateChangeListener, ActionListener {
+/**
+ * 検索実行ボタンを作成します。ファイルパスが空でないときに実行すると再度押下不可となり、
+ * ファイルパスまたはエンディングタイプに変更があれば再度押下可能になります。
+ * 
+ * @author Aptenodytes
+ *
+ */
+public class ExecuteButton extends JButton implements StateChangeListener, ActionListener, DocumentListener {
 	/**
 	 * データソース
 	 */
@@ -47,6 +56,26 @@ public class ExecuteButton extends JButton implements StateChangeListener, Actio
 	 */
 	public void setDataSource(Exportable dataSource) {
 		this.dataSource = dataSource;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+		this.setEnabled(true);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+		this.setEnabled(true);
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent e) {
 	}
 
 }
