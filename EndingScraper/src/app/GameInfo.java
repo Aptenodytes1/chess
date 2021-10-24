@@ -1,17 +1,22 @@
 package app;
 
-import java.util.Date;
-
+/**
+ * ゲームの情報を保持するvalue object
+ * 
+ * @author Aptenodytes
+ *
+ */
 public class GameInfo {
 	String whitePlayer;
-	String blackPalyer;
+	String blackPlayer;
 	String score;
 	String result;
 	String site;
 	String opening;
-	Date date;
-	int whiteRating;
-	int blackRating;
+	String event;
+	String date;
+	String whiteRating;
+	String blackRating;
 
 	public String getWhitePlayer() {
 		return whitePlayer;
@@ -21,12 +26,12 @@ public class GameInfo {
 		this.whitePlayer = whitePlayer;
 	}
 
-	public String getBlackPalyer() {
-		return blackPalyer;
+	public String getBlackPlayer() {
+		return blackPlayer;
 	}
 
-	public void setBlackPalyer(String blackPalyer) {
-		this.blackPalyer = blackPalyer;
+	public void setBlackPlayer(String blackPlayer) {
+		this.blackPlayer = blackPlayer;
 	}
 
 	public String getScore() {
@@ -53,30 +58,6 @@ public class GameInfo {
 		this.site = site;
 	}
 
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-	public int getWhiteRating() {
-		return whiteRating;
-	}
-
-	public void setWhiteRating(int whiteRating) {
-		this.whiteRating = whiteRating;
-	}
-
-	public int getBlackRating() {
-		return blackRating;
-	}
-
-	public void setBlackRating(int blackRating) {
-		this.blackRating = blackRating;
-	}
-
 	public String getOpening() {
 		return opening;
 	}
@@ -85,12 +66,36 @@ public class GameInfo {
 		this.opening = opening;
 	}
 
-	public GameInfo(String score, String site) {
-		this.score = score;
-		this.site = site;
+	public String getEvent() {
+		return event;
 	}
 
-	public String toString() {
-		return site;
+	public void setEvent(String event) {
+		this.event = event;
 	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getWhiteRating() {
+		return whiteRating;
+	}
+
+	public void setWhiteRating(String whiteRating) {
+		this.whiteRating = whiteRating;
+	}
+
+	public String getBlackRating() {
+		return blackRating;
+	}
+
+	public void setBlackRating(String blackRating) {
+		this.blackRating = blackRating;
+	}
+
 }

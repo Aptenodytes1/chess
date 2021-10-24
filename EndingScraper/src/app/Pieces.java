@@ -131,7 +131,7 @@ public class Pieces {
 	 * @param move 手
 	 */
 	public void remove(MoveInfo move) {
-		char removedPiece = move.isWhiteMove() ? Character.toUpperCase(move.getPiece())
+		char removedPiece = move.isWhite() ? Character.toUpperCase(move.getPiece())
 				: Character.toLowerCase(move.getPiece());
 		PiecesNum p = translatePiece(removedPiece, move.getSquare());
 		p.remove();
@@ -143,10 +143,10 @@ public class Pieces {
 	 * @param move 手
 	 */
 	public void promote(MoveInfo move) {
-		char promotedPiece = move.isWhiteMove() ? Character.toUpperCase(move.getPromotionPiece())
+		char promotedPiece = move.isWhite() ? Character.toUpperCase(move.getPromotionPiece())
 				: Character.toLowerCase(move.getPromotionPiece());
 		PiecesNum p = translatePiece(promotedPiece, move.getSquare());
-		PiecesNum deleteP = move.isWhiteMove() ? PiecesNum.WP : PiecesNum.BP;
+		PiecesNum deleteP = move.isWhite() ? PiecesNum.WP : PiecesNum.BP;
 		p.generate();
 		deleteP.remove();
 	}

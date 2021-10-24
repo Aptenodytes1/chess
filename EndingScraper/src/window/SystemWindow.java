@@ -39,7 +39,7 @@ public class SystemWindow extends JFrame {
 		// Components
 		DropFileLabel dropArea = new DropFileLabel(400, 400);
 		JButton buttonClear = new JButton("clear");
-		ExecuteButton buttonExecute = new ExecuteButton("execute");
+		ExecuteButton buttonExecute = new ExecuteButton("検索");
 		ResultPanel resultPanel = new ResultPanel(400, 500, new JTextArea(""));
 		EndingTypeField[] endingType = new EndingTypeField[5];
 		for (int i = 0; i < endingType.length; i++) {

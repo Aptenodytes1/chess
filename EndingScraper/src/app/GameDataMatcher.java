@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GameDataMatcher {
-	String patternEvent = "^\\[Event.+";
+	String patternEvent = "^\\[Event \"(.+)\"\\]";
 	String patternSite = "^\\[Site \"(.+)\"\\]";
 	String patternDate = "^\\[Date \"(.+)\"\\]";
 	String patternWhite = "^\\[White \"(.+)\"\\]";
@@ -69,6 +69,10 @@ public class GameDataMatcher {
 	private String extract(String str, Pattern p) {
 		Matcher m = p.matcher(str);
 		return m.matches() ? m.group(1) : null;
+	}
+
+	public String extractEvent(String str) {
+		return extract(str, pEvent);
 	}
 
 	public String extractSite(String str) {

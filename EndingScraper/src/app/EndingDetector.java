@@ -1,59 +1,6 @@
 package app;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class EndingDetector {
-
-	/**
-	 * 試合結果を削除する
-	 * 
-	 * @param score 棋譜
-	 * @return 削除対象を削除した棋譜
-	 */
-	private String removeResult(String score) {
-		String patternResult = "(.+) (1-0|0-1|1/2-1/2|\\*)";
-		Pattern p = Pattern.compile(patternResult);
-		Matcher matcher = p.matcher(score);
-		return matcher.replaceAll("$1");
-	}
-
-	/**
-	 * +と#をの記載を削除する
-	 * 
-	 * @param score 棋譜
-	 * @return 削除対象を削除した棋譜
-	 */
-	private String removeCheckAndMate(String score) {
-		score = score.replaceAll("\\+", "");
-		score = score.replaceAll("#", "");
-		return score;
-	}
-
-	/**
-	 * !と?を削除する
-	 * 
-	 * @param score 棋譜
-	 * @return 削除対象を削除した棋譜
-	 */
-	private String removeAnnotation(String score) {
-		score = score.replaceAll("!", "");
-		score = score.replaceAll("\\?", "");
-		return score;
-	}
-
-	/**
-	 * 手番表記を削除する
-	 * 
-	 * @param score 棋譜
-	 * @return 削除対象を削除した棋譜
-	 */
-	private String removeTurn(String score) {
-		score = score.replaceAll("[0-9]+\\. ", "");
-		score = score.replaceAll("[0-9]+\\.", "");
-		return score;
-	}
-
 	/**
 	 * 棋譜が指定したエンディングタイプに突入したときのプライ数を返す
 	 * 
@@ -87,7 +34,7 @@ public class EndingDetector {
 			if (m.isCapture()) {
 				for (int i = opponentsLastTurn; i >= 0; i--) {
 					MoveInfo checkMove = opponentsMoves[i];
-					if (m.isEqualSquare(checkMove)) {
+					if (m.getSquare().equals(checkMove.getSquare())) {
 						p.remove(checkMove);
 						pieceIsMovedInGame = true;
 						break;
@@ -116,7 +63,7 @@ public class EndingDetector {
 		MoveInfo[][] WBMoves = new MoveInfo[2][whitePly];
 
 		for (int i = 0; i < ply; i++) {
-			if (moves[i].isWhiteMove())
+			if (moves[i].isWhite())
 				WBMoves[0][i / 2] = moves[i];
 			else
 				WBMoves[1][i / 2] = moves[i];
@@ -131,16 +78,17 @@ public class EndingDetector {
 	 * @return 手の配列
 	 */
 	private MoveInfo[] scoreToMoves(String score) {
-		String s = removeResult(score);
-		s = removeAnnotation(s);
-		s = removeCheckAndMate(s);
-		s = removeTurn(s);
+		String s = ChessUtil.removeResult(score);
+		s = ChessUtil.removeAnnotation(s);
+		s = ChessUtil.removeCheckAndMate(s);
+		s = ChessUtil.removeTurn(s);
 
 		String[] sections = s.split(" ");
 		MoveInfo[] moves = new MoveInfo[sections.length];
+		MoveParser parser = new MoveParser();
 		for (int i = 0; i < sections.length; i++) {
 			boolean whiteTurn = (i % 2 == 0);
-			moves[i] = new MoveInfo(sections[i], whiteTurn);
+			moves[i] = parser.getMoveInfo(sections[i], whiteTurn);
 		}
 		return moves;
 	}

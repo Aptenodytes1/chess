@@ -1,8 +1,11 @@
 package app;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+/**
+ * 手の情報を保持するvalue object
+ * 
+ * @author Aptenodytes
+ *
+ */
 public class MoveInfo {
 	/**
 	 * 白番の手である場合はtrue, 黒番の手である場合はfalse
@@ -29,190 +32,52 @@ public class MoveInfo {
 	 */
 	private char promotionPiece = '-';
 
-	/**
-	 * コンストラクタ
-	 * 
-	 * @param move    手
-	 * @param isWhite 白番であるか
-	 */
-	public MoveInfo(String move, boolean isWhite) {
-		super();
+	public boolean isWhite() {
+		return isWhite;
+	}
+
+	public void setWhite(boolean isWhite) {
 		this.isWhite = isWhite;
-		this.piece = getMovedPiece(move);
-		this.square = getDestination(move);
-		this.isCapture = isMoveCapture(move);
-		this.isPromotion = isMovePromotion(move);
-		this.promotionPiece = getPromotionPiece(move);
 	}
 
-	/**
-	 * 手がキャスリングであるか
-	 * 
-	 * @param move 手
-	 * @return キャスリングである場合はtrue
-	 */
-	private boolean isCastle(String move) {
-		return move.charAt(0) == 'O';
-	}
-
-	/**
-	 * 手がO-Oであるか
-	 * 
-	 * @param move 手
-	 * @return O-Oである場合はtrue
-	 */
-	private boolean isKingsideCastle(String move) {
-		return move.equals("O-O");
-	}
-
-	/**
-	 * 比較先の手と同じマスに移動しているか
-	 * 
-	 * @param m 比較する手
-	 * @return 同じマスに移動している場合はtrue
-	 */
-	public boolean isEqualSquare(MoveInfo m) {
-		return (this.square).equals(m.getSquare());
-	}
-
-	/**
-	 * インスタンスが保存している手が白番であるか
-	 * 
-	 * @return 白番である場合はtrue
-	 */
-	public boolean isWhiteMove() {
-		return this.isWhite;
-	}
-
-	/**
-	 * インスタンスが保存している手が駒取りであるか
-	 * 
-	 * @return 駒取りである場合はtrue
-	 */
-	public boolean isCapture() {
-		return isCapture;
-	}
-
-	/**
-	 * インスタンスが保存している手がプロモーションであるか
-	 * 
-	 * @return プロモーションである場合はtrue
-	 */
-	public boolean isPromotion() {
-		return isPromotion;
-	}
-
-	/**
-	 * インスタンスが保存している駒名を取得する
-	 * 
-	 * @return 駒名
-	 */
 	public char getPiece() {
 		return piece;
 	}
 
-	/**
-	 * インスタンスが保存しているプロモーション先の駒名を取得する
-	 * 
-	 * @return プロモーション先の駒
-	 */
-	public char getPromotionPiece() {
-		return promotionPiece;
+	public void setPiece(char piece) {
+		this.piece = piece;
 	}
 
-	/**
-	 * インスタンスが保持するマスを取得する。
-	 * 
-	 * @return 座標
-	 */
 	public String getSquare() {
 		return square;
 	}
 
-	/**
-	 * 動かした駒名を取得する。
-	 * 
-	 * @param move 手
-	 * @return 駒名
-	 */
-	private char getMovedPiece(String move) {
-		if (isCastle(move))
-			return 'R';
-
-		char c = move.charAt(0);
-		if ('a' <= c && c <= 'h')
-			return 'P';
-		else
-			return c;
+	public void setSquare(String square) {
+		this.square = square;
 	}
 
-	/**
-	 * 行き先のマスを取得する
-	 * 
-	 * @param move 手
-	 * @return 行き先のマス
-	 */
-	private String getDestination(String move) {
-		if (isCastle(move)) {
-			String rookFile = isKingsideCastle(move) ? "f" : "d";
-			String rookRank = isWhite ? "1" : "8";
-			return rookFile + rookRank;
-		}
-		String patternDest = ".*([a-h][1-8]).*";
-		Pattern p = Pattern.compile(patternDest);
-		return extract(move, p, 1);
+	public boolean isCapture() {
+		return isCapture;
 	}
 
-	/**
-	 * 手が駒取りであるか
-	 * 
-	 * @param move 手
-	 * @return 駒取りである場合はtrue
-	 */
-	private boolean isMoveCapture(String move) {
-		return move.contains("x");
+	public void setCapture(boolean isCapture) {
+		this.isCapture = isCapture;
 	}
 
-	/**
-	 * 手がプロモーションであるか
-	 * 
-	 * @param move 手
-	 * @return プロモーションである場合はtrue
-	 */
-	private boolean isMovePromotion(String move) {
-		return move.contains("=");
+	public boolean isPromotion() {
+		return isPromotion;
 	}
 
-	/**
-	 * プロモーションした先の駒を取得する
-	 * 
-	 * @param move 手
-	 * @return プロモーションした先の駒名
-	 */
-	private char getPromotionPiece(String move) {
-		if (!move.contains("="))
-			return '-';
-		String patternResult = "(.*)=(.)(.*)";
-		Pattern p = Pattern.compile(patternResult);
-		return extract(move, p, 2).charAt(0);
+	public void setPromotion(boolean isPromotion) {
+		this.isPromotion = isPromotion;
 	}
 
-	/**
-	 * @param str
-	 * @param p
-	 * @param group
-	 * @return
-	 */
-	private String extract(String str, Pattern p, int group) {
-		Matcher m = p.matcher(str);
-		return m.matches() ? m.group(group) : null;
+	public char getPromotionPiece() {
+		return promotionPiece;
 	}
 
-	public String toString() {
-		String color = (isWhite ? "W" : "B");
-		String captureInfo = (isCapture ? ", x" : "");
-		String promoteInfo = (isPromotion ? ", =" + promotionPiece : "");
-		return "[" + color + ", " + piece + ", " + getSquare() + captureInfo + promoteInfo + "]";
+	public void setPromotionPiece(char promotionPiece) {
+		this.promotionPiece = promotionPiece;
 	}
 
 }

@@ -31,7 +31,7 @@ public class Main {
 //		JScrollPaneTest4 frame = new JScrollPaneTest4();
 //		frame.method();
 
-//		long startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < endingType.length; i++) {
 			System.out.println(endingType[i] + " ending games:");
 			for (int j = 0; j < path.length; j++) {
@@ -49,21 +49,21 @@ public class Main {
 						if (game != null) {
 							int ply = ed.getEndingPly(game.getScore(), endingType[i]);
 							if (ply != 0) {
-								System.out.println(game.getSite() + "#" + ply);
+								System.out.println(game.getSite());
+//								System.out.println(game.getSite() + "#" + ply);
 							}
 						}
 					} while (game != null);
 				} catch (IOException e) {
-					// TODO 自動生成された catch ブロック
 					e.printStackTrace();
 				}
 			}
 			System.out.println();
 		}
-//		long endTime = System.currentTimeMillis();
-//		System.out.println("開始時刻：" + startTime + " ms");
-//		System.out.println("終了時刻：" + endTime + " ms");
-//		System.out.println("処理時間：" + (endTime - startTime) + " ms");
+		long endTime = System.currentTimeMillis();
+		System.out.println("開始時刻：" + startTime + " ms");
+		System.out.println("終了時刻：" + endTime + " ms");
+		System.out.println("処理時間：" + (endTime - startTime) + " ms");
 		System.out.println("finish.");
 	}
 }

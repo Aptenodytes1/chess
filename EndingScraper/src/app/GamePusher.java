@@ -30,7 +30,7 @@ public class GamePusher {
 	public GameInfo pushGame() throws IOException {
 		String line = "";
 		GameDataMatcher gdm = new GameDataMatcher();
-		GameInfo game = new GameInfo("", "");
+		GameInfo game = new GameInfo();
 
 		for (line = ""; !gdm.matchScore(line);) {
 			line = br.readLine();
@@ -42,6 +42,22 @@ public class GamePusher {
 				game.setSite(gdm.extractSite(line));
 			} else if (gdm.matchScore(line)) {
 				game.setScore(line);
+//			} else if (gdm.matchEvent(line)) {
+//				game.setEvent(gdm.extractEvent(line));
+//			} else if (gdm.matchDate(line)) {
+//				game.setDate(gdm.extractDate(line));
+//			} else if (gdm.matchWhite(line)) {
+//				game.setWhitePlayer(gdm.extractWhite(line));
+//			} else if (gdm.matchBlack(line)) {
+//				game.setBlackPlayer(gdm.extractBlack(line));
+//			} else if (gdm.matchResult(line)) {
+//				game.setResult(gdm.extractResult(line));
+//			} else if (gdm.matchWhiteElo(line)) {
+//				game.setWhiteRating(gdm.extractWhiteElo(line));
+//			} else if (gdm.matchBlackElo(line)) {
+//				game.setBlackRating(gdm.extractBlackElo(line));
+//			} else if (gdm.matchEco(line)) {
+//				game.setOpening(gdm.extractEco(line));
 			}
 		}
 		if (line == null) {
