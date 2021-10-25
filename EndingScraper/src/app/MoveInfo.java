@@ -8,6 +8,11 @@ package app;
  */
 public class MoveInfo {
 	/**
+	 * 手を表した棋譜
+	 */
+	private String move;
+
+	/**
 	 * 白番の手である場合はtrue, 黒番の手である場合はfalse
 	 */
 	private boolean isWhite = true;
@@ -31,6 +36,18 @@ public class MoveInfo {
 	 * プロモーション先の駒名 NBRQのいずれか
 	 */
 	private char promotionPiece = '-';
+	/**
+	 * アンパッサンである場合はtrue, それ以外はfalse
+	 */
+	private boolean isEnPassant = false;
+
+	public String getMove() {
+		return move;
+	}
+
+	public void setMove(String move) {
+		this.move = move;
+	}
 
 	public boolean isWhite() {
 		return isWhite;
@@ -78,6 +95,14 @@ public class MoveInfo {
 
 	public void setPromotionPiece(char promotionPiece) {
 		this.promotionPiece = promotionPiece;
+	}
+
+	public boolean isEnPassant() {
+		return isEnPassant;
+	}
+
+	public void setEnPassant(boolean isEnPassant) {
+		this.isEnPassant = isEnPassant;
 	}
 
 }

@@ -112,6 +112,20 @@ public class Pieces {
 	}
 
 	/**
+	 * 白ポーンを1つ取り除く
+	 */
+	public void removeWP() {
+		PiecesNum.WP.remove();
+	}
+
+	/**
+	 * 黒ポーンを1つ取り除く
+	 */
+	public void removeBP() {
+		PiecesNum.BP.remove();
+	}
+
+	/**
 	 * 初期配置の駒を取り除く
 	 * 
 	 * @param square 取り除くマス
@@ -131,8 +145,8 @@ public class Pieces {
 	 * @param move 手
 	 */
 	public void remove(MoveInfo move) {
-		char removedPiece = move.isWhite() ? Character.toUpperCase(move.getPiece())
-				: Character.toLowerCase(move.getPiece());
+		char movedPiece = move.isPromotion() ? move.getPromotionPiece() : move.getPiece();
+		char removedPiece = move.isWhite() ? Character.toUpperCase(movedPiece) : Character.toLowerCase(movedPiece);
 		PiecesNum p = translatePiece(removedPiece, move.getSquare());
 		p.remove();
 	}

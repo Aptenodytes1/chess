@@ -31,7 +31,12 @@ public class EndingDetector {
 			}
 
 			boolean pieceIsMovedInGame = false;
-			if (m.isCapture()) {
+			if (m.isEnPassant()) {
+				if (isWhiteTurn)
+					p.removeBP();
+				else
+					p.removeWP();
+			} else if (m.isCapture()) {
 				for (int i = opponentsLastTurn; i >= 0; i--) {
 					MoveInfo checkMove = opponentsMoves[i];
 					if (m.getSquare().equals(checkMove.getSquare())) {
@@ -49,6 +54,17 @@ public class EndingDetector {
 				return ply + 1;
 		}
 		return 0;
+
+////		System.out.println(score);
+//		PieceCountingBoard board = new PieceCountingBoard();
+//		board.setBoard();
+////		board.printBoard();
+////		System.out.println();
+//		for (int ply = 0; ply < moves.length; ply++) {
+//			board.move(moves[ply]);
+//			if (board.isEnding(endingType))
+//				return ply + 1;
+//		}
 	}
 
 	/**
@@ -86,9 +102,11 @@ public class EndingDetector {
 		String[] sections = s.split(" ");
 		MoveInfo[] moves = new MoveInfo[sections.length];
 		MoveParser parser = new MoveParser();
+		MoveInfo lastMove;
 		for (int i = 0; i < sections.length; i++) {
+			lastMove = (i == 0) ? null : moves[i - 1];
 			boolean whiteTurn = (i % 2 == 0);
-			moves[i] = parser.getMoveInfo(sections[i], whiteTurn);
+			moves[i] = parser.getMoveInfo(sections[i], whiteTurn, lastMove);
 		}
 		return moves;
 	}
